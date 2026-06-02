@@ -52,6 +52,10 @@ body {
   -webkit-tap-highlight-color: transparent;
   background-color: #fef0d5;
   letter-spacing: -0.005em;
+  /* 음수 inset 광원이 viewport 폭을 넘기지 못하게 가로 스크롤 차단.
+     iOS Safari가 가로 폭 변동을 감지해 zoom in/out 을 반복하는 현상을 막아줌. */
+  overflow-x: clip;
+  max-width: 100vw;
 }
 
 /* 입력/버튼도 폰트 상속받게 (브라우저 기본은 system 폰트로 빠질 수 있음) */

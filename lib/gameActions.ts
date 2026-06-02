@@ -152,7 +152,13 @@ export async function resolveGame1Roulette(room: Room, prizeBudget: number) {
         ...room.game_state,
         phase: done ? "game1_done" : "game1_roulette",
         game1: { ...game1, winners: newWinners, candidates: [] },
-        roulette: { ...room.game_state.roulette, spinning: false },
+        // 시상 후엔 룰렛 result 도 초기화 → 운영자에게 다시 "🎰 룰렛 돌리기" 버튼이 보임
+        roulette: {
+          spinning: false,
+          result: null,
+          kind: "ones",
+          spinId: room.game_state.roulette.spinId ?? 0,
+        },
       },
     });
   } else {
@@ -296,7 +302,12 @@ export async function resolveGame2Roulette(room: Room, prizeBudget: number) {
         ...room.game_state,
         phase: filled ? "finished" : "game2_roulette",
         game2: { ...game2, winners: newWinners, current: null },
-        roulette: { ...room.game_state.roulette, spinning: false },
+        roulette: {
+          spinning: false,
+          result: null,
+          kind: "rank",
+          spinId: room.game_state.roulette.spinId ?? 0,
+        },
       },
     });
   } else if (ids.length > 1) {
@@ -322,7 +333,12 @@ export async function resolveGame2Roulette(room: Room, prizeBudget: number) {
       game_state: {
         ...room.game_state,
         game2: { ...game2, current: null },
-        roulette: { ...room.game_state.roulette, spinning: false },
+        roulette: {
+          spinning: false,
+          result: null,
+          kind: "rank",
+          spinId: room.game_state.roulette.spinId ?? 0,
+        },
       },
     });
   }
@@ -342,6 +358,13 @@ export async function pickRpsWinnerGame2(room: Room, participantId: string, priz
       ...room.game_state,
       phase: filled ? "finished" : "game2_roulette",
       game2: { ...game2, winners: newWinners, current: null, rps: null },
+      // 다음 라운드로 진행할 때 룰렛 버튼이 다시 표시되도록 result 초기화
+      roulette: {
+        spinning: false,
+        result: null,
+        kind: "rank",
+        spinId: room.game_state.roulette.spinId ?? 0,
+      },
     },
   });
 }

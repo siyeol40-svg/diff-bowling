@@ -30,8 +30,8 @@ export default function NyangHero({
 
   return (
     <div
-      className="relative mx-auto"
-      style={{ width: size, height: size }}
+      className="relative mx-auto aspect-square"
+      style={{ maxWidth: size, width: "100%" }}
     >
       {/* 배경 회전 보라/오렌지 광원 */}
       <div
