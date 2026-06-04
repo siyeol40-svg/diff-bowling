@@ -297,7 +297,7 @@ function Game1RouletteBoard({
       {game1.winners.length > 0 && (
         <div className="crossing-frame p-4">
           <div className="text-sm font-bold text-crossing-shadow">
-            지금까지 확정된 1게임 당첨자
+            지금까지 확정된 게임 1 당첨자
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {game1.winners.map((id) => (
@@ -557,7 +557,7 @@ function Game2RouletteBoard({
       {game2.winners.length > 0 && (
         <div className="crossing-frame p-4">
           <div className="text-sm font-bold text-crossing-shadow">
-            지금까지 확정된 2게임 당첨자
+            지금까지 확정된 게임 2 당첨자
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {game2.winners.map((id, i) => (

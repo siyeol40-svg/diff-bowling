@@ -36,7 +36,7 @@ export default function JackpotRoulette({
   max = 10,
   spinId,
   result,
-  duration = 2400,
+  duration = 3500,
   onStop,
   unitLabel,
 }: Props) {
@@ -122,8 +122,15 @@ export default function JackpotRoulette({
                boxShadow:
                  "0 0 0 2px rgba(255,255,255,0.6) inset, 0 8px 0 -2px #7a4e2a, 0 0 40px rgba(251,146,60,0.6), 0 0 60px rgba(192,132,252,0.4)",
              }}>
-          {/* 회전 휠 */}
-          <motion.div animate={controls} className="will-change-transform">
+          {/* 회전 휠 — key={spinId} 로 매 회전마다 인스턴스를 새로 생성해
+              "직전 회전이 끝난 위치에서 새 목적지로 짧게 보간" 되는 문제를 차단.
+              항상 y=0 부터 finalY 까지 동일한 거리/시간으로 돌게 됨. */}
+          <motion.div
+            key={spinId}
+            animate={controls}
+            initial={{ y: 0 }}
+            className="will-change-transform"
+          >
             {reel.map((n, i) => (
               <div
                 key={i}
