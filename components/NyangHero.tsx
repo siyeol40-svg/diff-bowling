@@ -13,7 +13,7 @@ import type { NyangMood } from "./DiffNyangAvatar";
  */
 export default function NyangHero({
   size = 320,
-  mood = "hello",
+  mood = "proud",
   withChambers = true,
   withParticles = true,
 }: {

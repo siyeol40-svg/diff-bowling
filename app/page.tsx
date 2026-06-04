@@ -54,7 +54,7 @@ export default function HomePage() {
       <div className="w-full max-w-2xl space-y-6">
         {/* 히어로 */}
         <header className="relative text-center pt-4 sm:pt-8">
-          <NyangHero size={360} mood="hello" />
+          <NyangHero size={360} mood="proud" />
 
           <motion.div
             initial={{ opacity: 0, y: 12 }}

@@ -23,7 +23,7 @@ export default function RulesIntro({ onDone }: Props) {
   const [heroVisible, setHeroVisible] = useState(true);
 
   const messages = [
-    { text: "안녕! 나는 디프냥이야 🐾\n오늘 같이 볼링 미니게임 할 거야!", frame: 0, mood: "hello" as const },
+    { text: "안녕! 나는 디프냥이야 🐾\n오늘 같이 볼링 미니게임 할 거야!", frame: 0, mood: "laugh" as const },
     { text: "총 상금은 배민 5만원권 8장! 두 게임 동안 4장씩 풀려.", frame: 4, mood: "love" as const },
     { text: "먼저 각자 볼링 한 게임씩 치고 와줘. 점수는 잘 기억해 두기!", frame: 0, mood: "eureka" as const },
     { text: "운영자가 우리 점수를 모아서 점수판에 정리해 줄 거야.", frame: 1, mood: "curious" as const },
@@ -53,7 +53,7 @@ export default function RulesIntro({ onDone }: Props) {
               INTRO
             </div>
             <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4">
-              <NyangHero size={260} mood="hello" />
+              <NyangHero size={260} mood="proud" />
               <div className="text-center sm:text-left flex-1">
                 <div className="text-[11px] font-extrabold tracking-widest text-plasma-600 uppercase">
                   Welcome

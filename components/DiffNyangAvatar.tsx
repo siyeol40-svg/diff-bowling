@@ -7,7 +7,6 @@ import { useState } from "react";
  * 18가지 디프냥 표정. public/nyang/<key>.png 와 매핑됩니다.
  */
 export type NyangMood =
-  | "hello" // 반가운 (인사)
   | "thank" // 고마운 (감사)
   | "proud" // 우쭐한
   | "love" // 사랑에 빠진
@@ -27,7 +26,6 @@ export type NyangMood =
   | "angry"; // 화가 난
 
 const MOOD_FILE: Record<NyangMood, string> = {
-  hello: "/nyang/hello.png",
   thank: "/nyang/thank.png",
   proud: "/nyang/proud.png",
   love: "/nyang/love.png",
@@ -57,7 +55,7 @@ export default function DiffNyangAvatar({
   size = 128,
   bounce = true,
   halo = true,
-  mood = "hello",
+  mood = "proud",
   className = "",
 }: {
   size?: number;
@@ -67,7 +65,7 @@ export default function DiffNyangAvatar({
   className?: string;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const src = MOOD_FILE[mood] ?? MOOD_FILE.hello;
+  const src = MOOD_FILE[mood] ?? MOOD_FILE.proud;
 
   return (
     <motion.div

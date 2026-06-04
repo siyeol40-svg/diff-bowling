@@ -96,7 +96,7 @@ export default function DiffNyangChat({
               borderRadius: "50%",
             }}
           />
-          <DiffNyangAvatar size={132} mood={current?.mood ?? "hello"} />
+          <DiffNyangAvatar size={132} mood={current?.mood ?? "laugh"} />
         </div>
         <button
           onClick={handleAdvance}
