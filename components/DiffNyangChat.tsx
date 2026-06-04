@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import DiffNyangAvatar from "./DiffNyangAvatar";
+import DiffNyangAvatar, { type NyangMood } from "./DiffNyangAvatar";
 
 interface ChatMessage {
   text: string;
   /** UI 가 이 메시지가 표시되는 동안 추가로 보여줄 키 (예: 위쪽 영상 frame index) */
   frame?: number;
+  /** 이 메시지를 말할 때 디프냥의 표정 */
+  mood?: NyangMood;
 }
 
 interface Props {
@@ -94,7 +96,7 @@ export default function DiffNyangChat({
               borderRadius: "50%",
             }}
           />
-          <DiffNyangAvatar size={132} />
+          <DiffNyangAvatar size={132} mood={current?.mood ?? "hello"} />
         </div>
         <button
           onClick={handleAdvance}

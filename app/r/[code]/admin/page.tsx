@@ -80,7 +80,7 @@ export default function AdminRoomPage({
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center space-y-3">
-          <DiffNyangAvatar size={96} />
+          <DiffNyangAvatar size={96} mood="sleepy" />
           <p className="font-cute text-lg text-crossing-shadow animate-pulse">
             방 정보를 불러오는 중...
           </p>
@@ -93,7 +93,7 @@ export default function AdminRoomPage({
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="crossing-frame p-6 max-w-md text-center space-y-3">
-          <DiffNyangAvatar size={96} bounce={false} />
+          <DiffNyangAvatar size={96} bounce={false} mood="confused" />
           <h2 className="font-cute text-xl font-extrabold text-red-600">
             연결 오류
           </h2>
@@ -109,7 +109,7 @@ export default function AdminRoomPage({
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="crossing-frame p-6 max-w-md text-center space-y-3">
-          <DiffNyangAvatar size={96} bounce={false} />
+          <DiffNyangAvatar size={96} bounce={false} mood="sulky" />
           <h2 className="font-cute text-xl font-extrabold text-crossing-ink">
             그런 방은 없어요
           </h2>
@@ -132,7 +132,7 @@ export default function AdminRoomPage({
           animate={{ scale: 1, opacity: 1 }}
           className="crossing-frame p-6 max-w-md w-full space-y-4 text-center"
         >
-          <DiffNyangAvatar size={96} />
+          <DiffNyangAvatar size={96} mood="shy" />
           <div>
             <h2 className="font-cute text-xl font-extrabold text-crossing-ink">
               운영자 인증이 필요해요

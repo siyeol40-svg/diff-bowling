@@ -107,6 +107,7 @@ export default function GameStage({ room, participants, adminMode = false }: Pro
               winnerIds={room.game_state.game1.winners}
               nameOf={nameOf}
               showConfetti
+              mood="win"
             />
           )}
           {status === "game2_input" && (
@@ -158,15 +159,20 @@ function ScoreInputBoard({
     game === 1 ? p.game1_score : p.game2_score;
   const filled = participants.filter((p) => scoreOf(p) != null).length;
   const total = participants.length || 1;
+  // 입력이 절반 미만이면 궁금한, 절반 이상이면 알아낸 표정
+  const mood = filled / total >= 0.5 ? "eureka" : "curious";
   return (
     <div className="crossing-frame p-5 space-y-3">
-      <div>
-        <h3 className="font-cute text-xl font-extrabold text-crossing-ink">
-          🎳 {game}게임 · 점수 입력 중
-        </h3>
-        <p className="text-sm text-crossing-shadow">
-          운영자가 모두의 점수를 입력하면 자동으로 다음 단계로 넘어가요.
-        </p>
+      <div className="flex items-start gap-3">
+        <DiffNyangAvatar size={72} mood={mood} halo={false} />
+        <div className="flex-1">
+          <h3 className="font-cute text-xl font-extrabold text-crossing-ink">
+            🎳 {game}게임 · 점수 입력 중
+          </h3>
+          <p className="text-sm text-crossing-shadow">
+            운영자가 모두의 점수를 입력하면 자동으로 다음 단계로 넘어가요.
+          </p>
+        </div>
       </div>
       <div className="h-3 w-full overflow-hidden rounded-full bg-nyang-100">
         <div
@@ -287,9 +293,12 @@ function Game1RouletteBoard({
         )}
 
         {noMatch && (
-          <div className="mt-4 rounded-xl bg-amber-100 border-2 border-amber-300 px-4 py-3 text-sm text-amber-900">
-            결과 <b>{roulette.result}</b>… 이번엔 매칭된 사람이 없어요. 다시
-            돌려볼까요? 🌀
+          <div className="mt-4 flex items-center gap-3 rounded-xl bg-amber-100 border-2 border-amber-300 px-4 py-3 text-sm text-amber-900">
+            <DiffNyangAvatar size={56} mood="sad" halo={false} bounce={false} />
+            <div>
+              결과 <b>{roulette.result}</b>… 이번엔 매칭된 사람이 없어요. 다시
+              돌려볼까요? 🌀
+            </div>
           </div>
         )}
       </div>
@@ -337,9 +346,13 @@ function RpsBoard({
     rps.reason === "tie"
       ? "동점자가 나왔어요! 가위바위보로 정해요."
       : "당첨자가 너무 많아요! 가위바위보로 정해요.";
+  const mood = rps.reason === "tie" ? "flustered" : "angry";
 
   return (
     <div className="crossing-frame p-5 space-y-4 text-center">
+      <div className="flex justify-center">
+        <DiffNyangAvatar size={120} mood={mood} />
+      </div>
       <div className="text-4xl">✊ ✌️ ✋</div>
       <h3 className="font-cute text-2xl font-extrabold text-crossing-ink">
         가위! 바위! 보!
@@ -382,18 +395,20 @@ function WinnersBoard({
   winnerIds,
   nameOf,
   showConfetti,
+  mood = "win",
 }: {
   title: string;
   subtitle?: string;
   winnerIds: string[];
   nameOf: (id: string) => string;
   showConfetti?: boolean;
+  mood?: import("./DiffNyangAvatar").NyangMood;
 }) {
   return (
     <div className="wafer-card relative p-6 text-center space-y-4">
       {showConfetti && <Confetti />}
       <div className="relative z-10 flex flex-col items-center gap-2">
-        <NyangHero size={200} withChambers={false} />
+        <NyangHero size={200} mood={mood} withChambers={false} />
         <motion.div
           initial={{ scale: 0.4, rotate: -8 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -439,13 +454,16 @@ function RankingBoard({ participants }: { participants: Participant[] }) {
 
   return (
     <div className="crossing-frame p-5 space-y-3">
-      <div className="text-center">
-        <h3 className="font-cute text-2xl font-extrabold text-crossing-ink">
-          🏁 2게임 등수
-        </h3>
-        <p className="text-sm text-crossing-shadow">
-          잠시 후 1~{groups.length}등 중 룰렛을 돌릴게요!
-        </p>
+      <div className="flex items-center justify-center gap-3">
+        <DiffNyangAvatar size={84} mood="surprised" halo={false} />
+        <div className="text-center">
+          <h3 className="font-cute text-2xl font-extrabold text-crossing-ink">
+            🏁 2게임 등수
+          </h3>
+          <p className="text-sm text-crossing-shadow">
+            잠시 후 1~{groups.length}등 중 룰렛을 돌릴게요!
+          </p>
+        </div>
       </div>
       <ul className="space-y-2">
         {groups.map(([rank, ids], gi) => (
@@ -595,7 +613,7 @@ function FinishedBoard({
       <Confetti />
       <div className="wafer-card relative p-6 text-center overflow-visible">
         <div className="relative z-10 flex flex-col items-center">
-          <NyangHero size={280} />
+          <NyangHero size={280} mood="thank" />
           <motion.div
             initial={{ scale: 0.4, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}

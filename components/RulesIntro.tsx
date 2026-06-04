@@ -23,17 +23,17 @@ export default function RulesIntro({ onDone }: Props) {
   const [heroVisible, setHeroVisible] = useState(true);
 
   const messages = [
-    { text: "안녕! 나는 디프냥이야 🐾\n오늘 같이 볼링 미니게임 할 거야!", frame: 0 },
-    { text: "총 상금은 배민 5만원권 8장! 두 게임 동안 4장씩 풀려.", frame: 4 },
-    { text: "먼저 각자 볼링 한 게임씩 치고 와줘. 점수는 잘 기억해 두기!", frame: 0 },
-    { text: "운영자가 우리 점수를 모아서 점수판에 정리해 줄 거야.", frame: 1 },
-    { text: "그다음 운영자 화면에서 점수가 입력되면, 너희 화면에도 자동으로 보여!", frame: 2 },
-    { text: "[1게임] 잭팟 룰렛이 0부터 9까지 돌아가고…\n내 점수의 1의 자리 숫자랑 같으면 당첨! 🎯", frame: 3 },
-    { text: "당첨자가 4명 이하면 일단 시상하고 한 번 더 돌려.\n4명을 넘기면 가위바위보로 뽑아!", frame: 4 },
-    { text: "[2게임] 모두 다시 한 게임 치고 점수 입력!\n이번엔 등수가 먼저 공개돼.", frame: 1 },
-    { text: "그리고 룰렛이 1등부터 N등 사이에서 돌아가.\n뽑힌 등수가 너면 당첨!", frame: 3 },
-    { text: "동점자가 있으면 가위바위보로 결정해.\n이렇게 4명 뽑힐 때까지 진행하면 끝!", frame: 4 },
-    { text: "준비됐어? 곧 운영자가 게임을 시작할 거야.\n위 화면을 잘 지켜봐 줘~ 🧡", frame: 4 },
+    { text: "안녕! 나는 디프냥이야 🐾\n오늘 같이 볼링 미니게임 할 거야!", frame: 0, mood: "hello" as const },
+    { text: "총 상금은 배민 5만원권 8장! 두 게임 동안 4장씩 풀려.", frame: 4, mood: "love" as const },
+    { text: "먼저 각자 볼링 한 게임씩 치고 와줘. 점수는 잘 기억해 두기!", frame: 0, mood: "eureka" as const },
+    { text: "운영자가 우리 점수를 모아서 점수판에 정리해 줄 거야.", frame: 1, mood: "curious" as const },
+    { text: "그다음 운영자 화면에서 점수가 입력되면, 너희 화면에도 자동으로 보여!", frame: 2, mood: "envy" as const },
+    { text: "[1게임] 잭팟 룰렛이 0부터 9까지 돌아가고…\n내 점수의 1의 자리 숫자랑 같으면 당첨! 🎯", frame: 3, mood: "surprised" as const },
+    { text: "당첨자가 4명 이하면 일단 시상하고 한 번 더 돌려.\n4명을 넘기면 가위바위보로 뽑아!", frame: 4, mood: "angry" as const },
+    { text: "[2게임] 모두 다시 한 게임 치고 점수 입력!\n이번엔 등수가 먼저 공개돼.", frame: 1, mood: "proud" as const },
+    { text: "그리고 룰렛이 1등부터 N등 사이에서 돌아가.\n뽑힌 등수가 너면 당첨!", frame: 3, mood: "dizzy" as const },
+    { text: "동점자가 있으면 가위바위보로 결정해.\n이렇게 4명 뽑힐 때까지 진행하면 끝!", frame: 4, mood: "confused" as const },
+    { text: "준비됐어? 곧 운영자가 게임을 시작할 거야.\n위 화면을 잘 지켜봐 줘~ 🧡", frame: 4, mood: "shy" as const },
   ];
 
   return (
@@ -53,7 +53,7 @@ export default function RulesIntro({ onDone }: Props) {
               INTRO
             </div>
             <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4">
-              <NyangHero size={260} />
+              <NyangHero size={260} mood="hello" />
               <div className="text-center sm:text-left flex-1">
                 <div className="text-[11px] font-extrabold tracking-widest text-plasma-600 uppercase">
                   Welcome

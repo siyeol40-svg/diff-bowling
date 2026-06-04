@@ -197,6 +197,16 @@ function LobbyControls({
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-nyang-50 to-plasma-50 border-2 border-plasma-200 px-3 py-2">
+        <img
+          src="/nyang/laugh.png"
+          alt="laugh"
+          className="w-12 h-12 object-contain shrink-0"
+        />
+        <div className="text-xs sm:text-sm text-plasma-700 font-bold">
+          참가자가 모이는 동안 잠시만 기다려주세요! 🧡
+        </div>
+      </div>
       <div className="rounded-2xl bg-crossing-paper border-2 border-crossing-frame p-3">
         <div className="text-[11px] font-bold uppercase tracking-wider text-crossing-shadow">
           참가자 입장 링크
@@ -459,8 +469,14 @@ function Game1RouletteControls({
       )}
 
       {roulette.spinning && (
-        <div className="rounded-xl bg-nyang-50 border-2 border-nyang-300 px-4 py-3 text-sm text-nyang-700 font-bold animate-pulse text-center">
-          🌀 룰렛이 돌아가는 중입니다...
+        <div className="rounded-xl bg-nyang-50 border-2 border-nyang-300 px-4 py-3 text-sm text-nyang-700 font-bold flex items-center justify-center gap-2">
+          <img
+            src="/nyang/dizzy.png"
+            alt="dizzy"
+            className="w-10 h-10 object-contain animate-spin"
+            style={{ animationDuration: "2s" }}
+          />
+          <span className="animate-pulse">🌀 룰렛이 돌아가는 중입니다...</span>
         </div>
       )}
 
@@ -633,8 +649,14 @@ function Game2RouletteControls({
         </button>
       )}
       {roulette.spinning && (
-        <div className="rounded-xl bg-nyang-50 border-2 border-nyang-300 px-4 py-3 text-sm text-nyang-700 font-bold animate-pulse text-center">
-          🌀 룰렛이 돌아가는 중입니다...
+        <div className="rounded-xl bg-nyang-50 border-2 border-nyang-300 px-4 py-3 text-sm text-nyang-700 font-bold flex items-center justify-center gap-2">
+          <img
+            src="/nyang/dizzy.png"
+            alt="dizzy"
+            className="w-10 h-10 object-contain animate-spin"
+            style={{ animationDuration: "2s" }}
+          />
+          <span className="animate-pulse">🌀 룰렛이 돌아가는 중입니다...</span>
         </div>
       )}
       {empty && (

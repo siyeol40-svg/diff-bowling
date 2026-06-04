@@ -2,31 +2,28 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import type { NyangMood } from "./DiffNyangAvatar";
 
 /**
- * 첨부 원본 일러스트를 영웅 비주얼로 큼직하게 활용하는 컴포넌트.
- *  - public/diffnyang_hero.png 가 있으면 그걸 메인으로
- *  - 없으면 public/diffnyang.png 로 폴백
- *  - 캐릭터 주변에 동심원 후광/입자/사이드 챔버까지 같이 그림
+ * 디프냥을 영웅 비주얼로 큼직하게 표시하는 컴포넌트.
+ *  - public/nyang/<mood>.png 를 사용
+ *  - 캐릭터 주변에 회전 광원/동심원 halo/사이드 챔버/B-P 입자
  *
- * 부모는 width/height 를 정해주거나, default size 그대로 사용.
+ * 부모는 width/height 를 정해주거나, default size 그대로 사용 (반응형).
  */
 export default function NyangHero({
   size = 320,
+  mood = "hello",
   withChambers = true,
   withParticles = true,
 }: {
   size?: number;
+  mood?: NyangMood;
   withChambers?: boolean;
   withParticles?: boolean;
 }) {
-  const [heroFailed, setHeroFailed] = useState(false);
-  const [smallFailed, setSmallFailed] = useState(false);
-  const src = !heroFailed
-    ? "/diffnyang_hero.png"
-    : !smallFailed
-      ? "/diffnyang.png"
-      : null;
+  const [imgFailed, setImgFailed] = useState(false);
+  const src = imgFailed ? null : `/nyang/${mood}.png`;
 
   return (
     <div
@@ -57,7 +54,7 @@ export default function NyangHero({
         style={{ width: "55%", height: "14%", left: "22.5%", bottom: "10%", opacity: 0.4 }}
       />
 
-      {/* 사이드 메탈릭 챔버 (캐릭터 양옆에 가로지르는 튜브 느낌) */}
+      {/* 사이드 메탈릭 챔버 */}
       {withChambers && (
         <>
           <div className="absolute" style={{ top: "38%", left: "-6%", width: "20%", height: "22%" }}>
@@ -97,9 +94,10 @@ export default function NyangHero({
 
       {/* 캐릭터 본체 */}
       <motion.div
+        key={mood}
         initial={{ scale: 0.7, rotate: -10, opacity: 0 }}
         animate={{ scale: 1, rotate: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 180, damping: 18, delay: 0.15 }}
+        transition={{ type: "spring", stiffness: 180, damping: 18, delay: 0.05 }}
         className="relative z-10 w-full h-full flex items-center justify-center"
       >
         <motion.div
@@ -111,16 +109,13 @@ export default function NyangHero({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={src}
-              alt="디프냥"
+              alt={`디프냥 (${mood})`}
               className="w-full h-full object-contain"
               style={{
                 filter:
                   "drop-shadow(0 12px 24px rgba(91,54,189,0.45)) drop-shadow(0 0 40px rgba(251,146,60,0.55))",
               }}
-              onError={() => {
-                if (src === "/diffnyang_hero.png") setHeroFailed(true);
-                else setSmallFailed(true);
-              }}
+              onError={() => setImgFailed(true)}
             />
           ) : (
             <FallbackBlock />
