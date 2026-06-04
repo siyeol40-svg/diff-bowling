@@ -54,8 +54,7 @@ export default function HyperFrame({
       <div className="flex items-center justify-between px-4 py-2 text-white"
            style={{ background: "linear-gradient(90deg, #c2410c 0%, #7c3aed 100%)" }}>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold">하이퍼프레임</span>
-          <span className="text-[11px] opacity-80">진행 흐름</span>
+          <span className="text-xs font-bold">진행 방식 설명</span>
         </div>
         <div className="flex gap-1.5">
           {order.map((k) => (
@@ -143,21 +142,17 @@ function BowlingFrame() {
           <rect x={cx - 5} y={cy - 4} width="10" height="2" fill="#EF4444" />
         </g>
       ))}
-      {/* 공 */}
-      <motion.circle
-        cx="160"
-        cy="150"
-        r="14"
-        fill="#FB923C"
-        stroke="#A06A3F"
-        strokeWidth="2"
+      {/* 공 (몸체 + 손가락 구멍을 한 그룹으로 묶어 같이 움직임) */}
+      <motion.g
         initial={{ y: 0 }}
         animate={{ y: [0, -80, 0] }}
         transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <circle cx="156" cy="146" r="1.6" fill="#3B2A20" />
-      <circle cx="160" cy="148" r="1.6" fill="#3B2A20" />
-      <circle cx="164" cy="146" r="1.6" fill="#3B2A20" />
+      >
+        <circle cx="160" cy="150" r="14" fill="#FB923C" stroke="#A06A3F" strokeWidth="2" />
+        <circle cx="156" cy="146" r="1.6" fill="#3B2A20" />
+        <circle cx="160" cy="148" r="1.6" fill="#3B2A20" />
+        <circle cx="164" cy="146" r="1.6" fill="#3B2A20" />
+      </motion.g>
     </svg>
   );
 }
@@ -223,6 +218,17 @@ function InputFrame() {
 }
 
 function RouletteFrame() {
+  // reel: 0~9 가 4번 반복 (40개). 3번째 패스의 7 = index 27.
+  // h-10 (40px) per item, 슬롯 viewport h-20 (모바일 80px) — 슬롯 가운데(40px)에
+  // index 27 의 가운데(27*40 + 20 = 1100)가 오도록 y = -(1100 - 40) = -1060.
+  const reel = [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+  ];
+  const STOP_Y = -1060;
+
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <div className="absolute inset-0 jackpot-glow opacity-70" />
@@ -230,33 +236,36 @@ function RouletteFrame() {
       <div className="halo-ring absolute" style={{ width: "70%", height: "26%", left: "15%", bottom: "8%", opacity: 0.7 }} />
       <div className="halo-ring absolute" style={{ width: "90%", height: "18%", left: "5%", bottom: "3%", opacity: 0.4 }} />
       <div className="relative flex gap-2">
-        {["3", "5", "7"].map((d, i) => (
+        {[0, 1, 2].map((i) => (
           <div
             key={i}
             className="relative w-14 h-20 sm:w-16 sm:h-24 overflow-hidden rounded-xl border-4 border-crossing-frame bg-white shadow-pop"
           >
             <motion.div
-              animate={{ y: [0, -300] }}
+              // 0 → -1060 으로 회전 후 -1060 에서 정지하고 잠시 후 반복
+              animate={{ y: [0, STOP_Y, STOP_Y] }}
               transition={{
-                duration: 0.6,
+                duration: 3.2,
+                times: [0, 0.72, 1],
                 repeat: Infinity,
-                ease: "linear",
-                delay: i * 0.05,
+                repeatDelay: 1.4,
+                ease: [0.05, 0.6, 0.2, 1],
+                delay: i * 0.18,
               }}
               className="flex flex-col items-center"
             >
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(
-                (n, j) => (
-                  <span
-                    key={j}
-                    className="slot-digit text-3xl sm:text-4xl text-nyang-600 h-10 flex items-center"
-                  >
-                    {n}
-                  </span>
-                ),
-              )}
+              {reel.map((n, j) => (
+                <span
+                  key={j}
+                  className="slot-digit text-3xl sm:text-4xl text-nyang-600 h-10 flex items-center"
+                >
+                  {n}
+                </span>
+              ))}
             </motion.div>
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/80" />
+            {/* 중앙 가이드라인 */}
+            <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-nyang-500/60 via-plasma-400/60 to-nyang-500/60" />
           </div>
         ))}
       </div>

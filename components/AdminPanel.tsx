@@ -609,8 +609,12 @@ function Game2RouletteControls({
   const empty = !roulette.spinning && roulette.result != null && (game2.current?.ids.length ?? 0) === 0;
   const ranksLeft = useMemo(() => {
     const map = groupByRank(participants, 2);
-    const winSet = new Set(game2.winners);
-    return Array.from(map.entries()).filter(([, ids]) => ids.some((i) => !winSet.has(i)));
+    // 게임1 당첨자도 제외 (8명 골고루 분배 정책)
+    const blocked = new Set<string>([
+      ...game2.winners,
+      ...participants.filter((p) => p.game1_won).map((p) => p.id),
+    ]);
+    return Array.from(map.entries()).filter(([, ids]) => ids.some((i) => !blocked.has(i)));
   }, [participants, game2.winners]);
 
   return (

@@ -13,7 +13,6 @@ export default function HomePage() {
   const supabase = getSupabase();
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [joinCode, setJoinCode] = useState("");
 
   async function createRoom() {
     if (creating) return;
@@ -50,18 +49,9 @@ export default function HomePage() {
     }
   }
 
-  function joinRoom() {
-    const code = joinCode.trim().toUpperCase();
-    if (code.length < 3) {
-      setError("방 코드를 정확히 입력해 주세요.");
-      return;
-    }
-    router.push(`/r/${code}`);
-  }
-
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl space-y-6">
+      <div className="w-full max-w-2xl space-y-6">
         {/* 히어로 */}
         <header className="relative text-center pt-4 sm:pt-8">
           <NyangHero size={360} />
@@ -98,86 +88,48 @@ export default function HomePage() {
 
         <HyperFrame autoCycle interval={2400} />
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 운영자 카드 */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="wafer-card relative p-5 sm:p-6 space-y-3"
-          >
-            <div className="absolute top-3 right-3 text-[10px] font-extrabold tracking-widest text-plasma-600 bg-white/80 border border-plasma-200 rounded-full px-2 py-0.5">
-              ADMIN
+        {/* 운영자 전용 카드 */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="wafer-card relative p-6 sm:p-7 space-y-4"
+        >
+          <div className="absolute top-3 right-3 text-[10px] font-extrabold tracking-widest text-plasma-600 bg-white/80 border border-plasma-200 rounded-full px-2 py-0.5">
+            ADMIN ONLY
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🎰</span>
+              <h2 className="font-cute text-2xl sm:text-3xl font-extrabold text-plasma-700">
+                운영자 시작
+              </h2>
             </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🎰</span>
-                <h2 className="font-cute text-2xl font-extrabold text-plasma-700">
-                  운영자
-                </h2>
-              </div>
-              <p className="text-sm text-crossing-shadow mt-2">
-                방을 만들고 링크를 공유해요.
+            <p className="text-sm text-crossing-shadow mt-2">
+              방을 만든 뒤, 표시되는 링크를 참가자들에게 공유하세요.
+              <br />
+              점수 입력 · 룰렛 진행 · 가위바위보 결정은 모두 운영자가 담당합니다.
+            </p>
+            <button
+              onClick={createRoom}
+              disabled={creating}
+              className="mt-4 w-full rounded-2xl py-4 text-lg sm:text-xl font-extrabold text-white shadow-pop transition disabled:opacity-60 active:translate-y-0.5
+                        bg-gradient-to-r from-nyang-500 via-orange-500 to-plasma-500
+                        hover:brightness-110 hover:shadow-lg
+                        border-2 border-white/30"
+            >
+              {creating ? "🌀 방 만드는 중..." : "🎰 새 방 만들기"}
+            </button>
+            <div className="mt-3 rounded-xl bg-white/70 border border-crossing-frame/30 px-3 py-2 text-xs sm:text-sm text-crossing-shadow flex items-start gap-2">
+              <span className="text-base shrink-0">💡</span>
+              <span>
+                참가자분들은 <b>운영자가 공유한 링크</b>로만 입장할 수 있어요.
                 <br />
-                점수 입력 · 룰렛 · 가위바위보 모두 운영자가 진행합니다.
-              </p>
-              <button
-                onClick={createRoom}
-                disabled={creating}
-                className="mt-4 w-full rounded-2xl py-3.5 text-base sm:text-lg font-extrabold text-white shadow-pop transition disabled:opacity-60 active:translate-y-0.5
-                          bg-gradient-to-r from-nyang-500 via-orange-500 to-plasma-500
-                          hover:brightness-110 hover:shadow-lg
-                          border-2 border-white/30"
-              >
-                {creating ? "🌀 방 만드는 중..." : "🎰 새 방 만들기"}
-              </button>
-              <div className="mt-2 text-[11px] text-center text-crossing-shadow/70">
-                만드는 즉시 운영자 화면으로 이동해요
-              </div>
+                별도의 방 코드 입력은 필요 없습니다.
+              </span>
             </div>
-          </motion.div>
-
-          {/* 참가자 카드 */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="wafer-card relative p-5 sm:p-6 space-y-3"
-          >
-            <div className="absolute top-3 right-3 text-[10px] font-extrabold tracking-widest text-nyang-600 bg-white/80 border border-nyang-300 rounded-full px-2 py-0.5">
-              PARTICIPANT
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🐾</span>
-                <h2 className="font-cute text-2xl font-extrabold text-nyang-700">
-                  참가자
-                </h2>
-              </div>
-              <p className="text-sm text-crossing-shadow mt-2">
-                운영자가 알려준 방 코드로 입장!
-                <br />
-                실시간으로 룰렛/시상이 같이 흘러갑니다.
-              </p>
-              <div className="mt-4 flex gap-2">
-                <input
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => e.key === "Enter" && joinRoom()}
-                  maxLength={6}
-                  placeholder="AB3K"
-                  className="flex-1 rounded-2xl border-2 border-nyang-300 bg-white px-4 py-3 font-mono text-xl tracking-widest uppercase text-center focus:outline-none focus:ring-4 focus:ring-nyang-200"
-                />
-                <button
-                  onClick={joinRoom}
-                  className="rounded-2xl bg-gradient-to-b from-nyang-400 to-nyang-600 hover:brightness-110 text-white font-extrabold px-5 shadow-pop transition border-2 border-white/30"
-                >
-                  입장
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </section>
+          </div>
+        </motion.div>
 
         {error && (
           <div className="rounded-2xl bg-red-50 border-2 border-red-200 px-4 py-3 text-sm text-red-700 shadow-pop">

@@ -252,20 +252,25 @@ export async function startGame2Roulette(room: Room) {
 
 export async function spinGame2(room: Room, participants: Participant[]) {
   const ranksMap = groupByRank(participants, 2);
+
+  // 8명에게 골고루 상품이 가도록, 게임1 당첨자는 게임2 룰렛 후보에서 제외.
+  // 게임2 누적 당첨자 + 게임1 당첨자 → 모두 룰렛 제외 셋(blockedIds) 으로 묶음.
+  const game1WonIds = participants.filter((p) => p.game1_won).map((p) => p.id);
+  const blockedIds = new Set<string>([
+    ...room.game_state.game2.winners,
+    ...game1WonIds,
+  ]);
+
   const validRanks = Array.from(ranksMap.entries())
-    .filter(([rank, ids]) => {
-      // 이미 당첨된 참가자만 있는 등수는 제외
-      const winners = new Set(room.game_state.game2.winners);
-      return ids.some((id) => !winners.has(id));
-    })
+    .filter(([_rank, ids]) => ids.some((id) => !blockedIds.has(id)))
     .map(([rank]) => rank);
   if (validRanks.length === 0) {
     throw new Error("더 이상 뽑을 등수가 없습니다.");
   }
-  // 균등 랜덤
+  // 균등 랜덤 — blocked 가 없는 등수들 사이에서만
   const pickedRank = validRanks[Math.floor(Math.random() * validRanks.length)];
   const idsAtRank = (ranksMap.get(pickedRank) ?? []).filter(
-    (id) => !room.game_state.game2.winners.includes(id),
+    (id) => !blockedIds.has(id),
   );
   const spinId = (room.game_state.roulette.spinId ?? 0) + 1;
   // 룰렛은 1~N(=가장 큰 등수) 슬롯이므로, max 는 ranks 의 최대값
