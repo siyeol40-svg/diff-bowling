@@ -680,23 +680,37 @@ function Game2RpsControls({
   if (!rps) return null;
   const nameOf = (id: string) =>
     participants.find((p) => p.id === id)?.name ?? "(?)";
+  const remaining = rps.need - rps.picked_winners.length;
   return (
     <div className="space-y-3">
       <div className="text-sm text-crossing-shadow">
-        동점자 가위바위보 - 승자를 1명 골라주세요.
+        동점자 가위바위보 - 승자를 <b>{remaining}</b>명 더 골라주세요.
+        <br />
+        <span className="text-[11px] text-crossing-shadow/70">
+          ({rps.candidates.length}명 동점, 4명 채우는 데 {rps.need}명 필요)
+        </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {rps.candidates.map((id) => (
-          <button
-            key={id}
-            onClick={() =>
-              action(() => pickRpsWinnerGame2(room, id, PRIZE_PER_GAME))
-            }
-            className="rounded-2xl px-4 py-3 text-left font-bold bg-white border-2 border-crossing-frame/40 hover:bg-nyang-50"
-          >
-            ✊✌️✋ {nameOf(id)}
-          </button>
-        ))}
+        {rps.candidates.map((id) => {
+          const picked = rps.picked_winners.includes(id);
+          return (
+            <button
+              key={id}
+              disabled={picked || remaining <= 0}
+              onClick={() =>
+                action(() => pickRpsWinnerGame2(room, id, PRIZE_PER_GAME))
+              }
+              className={
+                "rounded-2xl px-4 py-3 text-left font-bold transition " +
+                (picked
+                  ? "bg-nyang-100 border-2 border-nyang-400 text-nyang-700"
+                  : "bg-white border-2 border-crossing-frame/40 hover:bg-nyang-50")
+              }
+            >
+              {picked ? "🏆 " : "✊✌️✋ "} {nameOf(id)}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

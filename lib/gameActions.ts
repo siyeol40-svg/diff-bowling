@@ -285,16 +285,43 @@ export async function spinGame2(room: Room, participants: Participant[]) {
   return max;
 }
 
-/** 게임2 룰렛 결과 처리 */
+/** 게임2 룰렛 결과 처리
+ *
+ *  규칙 (게임1과 동일):
+ *   - 후보 + 누적 ≤ 4 → 후보 전원 시상 (단일이든 동점이든 동일)
+ *   - 후보 + 누적 > 4 → 부족분만큼 가위바위보로 추첨
+ *   - 4명 채워지면 자동으로 finished, 아니면 game2_roulette 로 돌아가 다시 돌릴 수 있음
+ */
 export async function resolveGame2Roulette(room: Room, prizeBudget: number) {
   const { game2 } = room.game_state;
   if (!game2.current) return;
   const ids = game2.current.ids;
-  if (ids.length === 1) {
-    // 단일 당첨
-    const winnerId = ids[0];
-    const newWinners = [...game2.winners, winnerId];
-    await markGame2Winner(winnerId);
+
+  if (ids.length === 0) {
+    // 빈 등수 - 다시 굴리도록 클리어
+    await updateRoom(room.id, {
+      game_state: {
+        ...room.game_state,
+        game2: { ...game2, current: null },
+        roulette: {
+          spinning: false,
+          result: null,
+          kind: "rank",
+          spinId: room.game_state.roulette.spinId ?? 0,
+        },
+      },
+    });
+    return;
+  }
+
+  const totalIfAdded = game2.winners.length + ids.length;
+
+  if (totalIfAdded <= prizeBudget) {
+    // 후보 전원 시상. (단일 당첨 + 동점자 전원 시상 케이스 모두 이쪽)
+    const newWinners = [...game2.winners, ...ids];
+    for (const id of ids) {
+      await markGame2Winner(id);
+    }
     const filled = newWinners.length >= prizeBudget;
     await updateRoom(room.id, {
       status: filled ? "finished" : "game2_roulette",
@@ -310,12 +337,13 @@ export async function resolveGame2Roulette(room: Room, prizeBudget: number) {
         },
       },
     });
-  } else if (ids.length > 1) {
-    // 동점 → RPS
+  } else {
+    // 후보 + 누적이 4명을 초과 → 부족분만큼만 가위바위보로 추첨
+    const need = prizeBudget - game2.winners.length;
     const rps: RpsState = {
       candidates: ids,
       picked_winners: [],
-      need: 1,
+      need,
       reason: "tie",
     };
     await updateRoom(room.id, {
@@ -327,20 +355,6 @@ export async function resolveGame2Roulette(room: Room, prizeBudget: number) {
         roulette: { ...room.game_state.roulette, spinning: false },
       },
     });
-  } else {
-    // 빈 등수 - 다시 굴리도록 클리어
-    await updateRoom(room.id, {
-      game_state: {
-        ...room.game_state,
-        game2: { ...game2, current: null },
-        roulette: {
-          spinning: false,
-          result: null,
-          kind: "rank",
-          spinId: room.game_state.roulette.spinId ?? 0,
-        },
-      },
-    });
   }
 }
 
@@ -348,9 +362,30 @@ export async function pickRpsWinnerGame2(room: Room, participantId: string, priz
   const { game2 } = room.game_state;
   if (!game2.rps) return;
   if (!game2.rps.candidates.includes(participantId)) return;
-  // 게임2는 항상 need=1 (동점자 중 1명)
-  const newWinners = [...game2.winners, participantId];
-  await markGame2Winner(participantId);
+  if (game2.rps.picked_winners.includes(participantId)) return;
+
+  const nextPicked = [...game2.rps.picked_winners, participantId];
+  const rpsDone = nextPicked.length >= game2.rps.need;
+
+  if (!rpsDone) {
+    // 아직 더 뽑아야 함 - picked_winners 만 갱신
+    await updateRoom(room.id, {
+      game_state: {
+        ...room.game_state,
+        game2: {
+          ...game2,
+          rps: { ...game2.rps, picked_winners: nextPicked },
+        },
+      },
+    });
+    return;
+  }
+
+  // RPS 종료 - 누적 winners 에 합치고 4명 채워졌는지에 따라 finished / game2_roulette 으로 분기
+  const newWinners = [...game2.winners, ...nextPicked];
+  for (const id of nextPicked) {
+    await markGame2Winner(id);
+  }
   const filled = newWinners.length >= prizeBudget;
   await updateRoom(room.id, {
     status: filled ? "finished" : "game2_roulette",
