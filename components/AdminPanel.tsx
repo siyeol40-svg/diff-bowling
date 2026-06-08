@@ -630,7 +630,13 @@ function Game2RouletteControls({
       ...game2.winners,
       ...participants.filter((p) => p.game1_won).map((p) => p.id),
     ]);
-    return Array.from(map.entries()).filter(([, ids]) => ids.some((i) => !blocked.has(i)));
+    // 1차: 그룹 전원이 비당첨자인 등수만 — spinGame2 의 1차 규칙과 일치
+    let result = Array.from(map.entries()).filter(([, ids]) => ids.every((i) => !blocked.has(i)));
+    // 2차: 1차가 비어 있을 때만 부분 허용 등수도 카운트
+    if (result.length === 0) {
+      result = Array.from(map.entries()).filter(([, ids]) => ids.some((i) => !blocked.has(i)));
+    }
+    return result;
   }, [participants, game2.winners]);
 
   return (

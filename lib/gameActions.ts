@@ -261,13 +261,23 @@ export async function spinGame2(room: Room, participants: Participant[]) {
     ...game1WonIds,
   ]);
 
-  const validRanks = Array.from(ranksMap.entries())
-    .filter(([_rank, ids]) => ids.some((id) => !blockedIds.has(id)))
+  // 1차 규칙: 동점자 그룹 안의 *모든* 사람이 blocked 가 아닌 등수만 valid.
+  //   → 동점자 두 명 중 한 명이 게임1 당첨자인 경우, 그 등수가 룰렛에 뜨지 않게.
+  //   → 결과적으로 "동점자가 통째로 시상되는 등수" 만 뽑히게 됨.
+  let validRanks = Array.from(ranksMap.entries())
+    .filter(([_rank, ids]) => ids.every((id) => !blockedIds.has(id)))
     .map(([rank]) => rank);
+  // 2차 폴백: 1차에서 valid 가 0개라면 (예: 거의 모든 등수에 게임1 당첨자가 섞임),
+  //   "비당첨자가 한 명이라도 있는" 등수까지 허용해서 게임 진행 막힘을 방지.
+  if (validRanks.length === 0) {
+    validRanks = Array.from(ranksMap.entries())
+      .filter(([_rank, ids]) => ids.some((id) => !blockedIds.has(id)))
+      .map(([rank]) => rank);
+  }
   if (validRanks.length === 0) {
     throw new Error("더 이상 뽑을 등수가 없습니다.");
   }
-  // 균등 랜덤 — blocked 가 없는 등수들 사이에서만
+  // 균등 랜덤
   const pickedRank = validRanks[Math.floor(Math.random() * validRanks.length)];
   const idsAtRank = (ranksMap.get(pickedRank) ?? []).filter(
     (id) => !blockedIds.has(id),

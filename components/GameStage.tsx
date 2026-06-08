@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useMemo } from "react";
 import type { Participant, Room } from "@/lib/types";
 import { PRIZE_PER_GAME } from "@/lib/types";
-import { groupByRank, onesDigit, statusLabel } from "@/lib/game";
+import { groupByRank, onesDigit, rankParticipants, statusLabel } from "@/lib/game";
 import JackpotRoulette from "./JackpotRoulette";
 import WinnerCard from "./WinnerCard";
 import HyperFrame from "./HyperFrame";
@@ -144,6 +144,123 @@ export default function GameStage({ room, participants, adminMode = false }: Pro
 }
 
 /* ------------------------------------------------------------------ */
+/* 룰렛 화면용 — 전체 참가자 점수 띠 (룰렛 진행 중 모두가 자기 점수 확인) */
+/* ------------------------------------------------------------------ */
+
+function ScoresBar({
+  participants,
+  game,
+  winnerIds,
+  candidateIds,
+  roulette,
+}: {
+  participants: Participant[];
+  game: 1 | 2;
+  winnerIds: string[];
+  candidateIds: string[];
+  roulette: { result: number | null; spinning: boolean; kind: string };
+}) {
+  const winSet = new Set(winnerIds);
+  const candSet = new Set(candidateIds);
+
+  // 게임2 인 경우 등수 맵 미리 계산
+  const rankOf = useMemo(() => {
+    if (game !== 2) return (_id: string) => null as number | null;
+    const ranks = rankParticipants(participants, 2);
+    return (id: string) => ranks.get(id) ?? null;
+  }, [participants, game]);
+
+  // 점수 높은 순 정렬 (점수 없는 사람 뒤)
+  const sorted = useMemo(() => {
+    const arr = [...participants];
+    arr.sort((a, b) => {
+      const sa = (game === 1 ? a.game1_score : a.game2_score) ?? -1;
+      const sb = (game === 1 ? b.game1_score : b.game2_score) ?? -1;
+      return sb - sa;
+    });
+    return arr;
+  }, [participants, game]);
+
+  // 룰렛 결과가 멈춰서 표시되는 시점인지 (강조 효과용)
+  const hasResult = !roulette.spinning && roulette.result != null;
+
+  return (
+    <div className="rounded-2xl border-2 border-crossing-frame bg-white/85 backdrop-blur p-3 shadow-pop">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[11px] font-extrabold uppercase tracking-wider text-plasma-600">
+          📋 전체 점수
+        </div>
+        <div className="text-[11px] text-crossing-shadow font-bold">
+          {game === 1
+            ? "1의 자리가 룰렛 결과와 같으면 당첨!"
+            : "내 등수가 룰렛에서 뽑히면 당첨!"}
+        </div>
+      </div>
+      <div className="overflow-x-auto -mx-1 px-1">
+        <div className="flex gap-1.5 min-w-max pb-1">
+          {sorted.map((p) => {
+            const score = game === 1 ? p.game1_score : p.game2_score;
+            const ones = score != null ? Math.abs(score) % 10 : null;
+            const rank = rankOf(p.id);
+            const isWinner = winSet.has(p.id);
+            const isCandidate = candSet.has(p.id);
+
+            // 룰렛 결과가 자기와 매칭됐는지 (강조)
+            let isMatched = false;
+            if (hasResult && score != null) {
+              if (game === 1 && roulette.kind === "ones") {
+                isMatched = ones === roulette.result;
+              } else if (game === 2 && roulette.kind === "rank") {
+                isMatched = rank === roulette.result;
+              }
+            }
+
+            return (
+              <div
+                key={p.id}
+                className={
+                  "shrink-0 rounded-xl border-2 px-2.5 py-1.5 text-xs transition " +
+                  (isWinner
+                    ? "border-nyang-400 bg-gradient-to-b from-yellow-100 to-nyang-100 text-nyang-700"
+                    : isCandidate
+                      ? "border-plasma-400 bg-plasma-50 text-plasma-700 animate-bounceSoft"
+                      : isMatched
+                        ? "border-nyang-400 bg-nyang-50 text-nyang-700"
+                        : "border-crossing-frame/30 bg-white text-crossing-ink")
+                }
+              >
+                <div className="font-bold truncate max-w-[80px]">
+                  {isWinner && "🏆 "}
+                  {isCandidate && !isWinner && "✨ "}
+                  {p.name}
+                </div>
+                {score != null ? (
+                  <div className="font-mono font-extrabold flex items-baseline gap-0.5">
+                    {game === 2 && rank != null && (
+                      <span className="text-[10px] text-plasma-600 font-bold mr-1">
+                        {rank}등
+                      </span>
+                    )}
+                    <span>{score}</span>
+                    {game === 1 && ones != null && (
+                      <span className="text-[10px] text-nyang-600 ml-0.5">
+                        (…{ones})
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-[10px] text-crossing-shadow/60">미입력</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* 점수 입력 진행 보드                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -241,6 +358,13 @@ function Game1RouletteBoard({
 
   return (
     <div className="space-y-4">
+      <ScoresBar
+        participants={participants}
+        game={1}
+        winnerIds={game1.winners}
+        roulette={roulette}
+        candidateIds={game1.candidates}
+      />
       <div className="wafer-card relative p-5 sm:p-6 flex flex-col items-center text-center">
         {/* 상단 회차/누적 뱃지 */}
         <div className="relative z-10 flex items-center gap-2 text-xs sm:text-sm">
@@ -514,6 +638,13 @@ function Game2RouletteBoard({
 
   return (
     <div className="space-y-4">
+      <ScoresBar
+        participants={participants}
+        game={2}
+        winnerIds={game2.winners}
+        roulette={roulette}
+        candidateIds={game2.current?.ids ?? []}
+      />
       <div className="wafer-card relative p-5 sm:p-6 flex flex-col items-center text-center">
         <div className="relative z-10 flex items-center gap-2 text-xs sm:text-sm">
           <span className="inline-flex items-center gap-1 rounded-full bg-white border-2 border-plasma-300 px-3 py-1 font-extrabold text-plasma-700 shadow-pop">
